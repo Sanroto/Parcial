@@ -1,0 +1,183 @@
+<html>
+	<head>
+	<script>
+ var ctx, cart;
+
+//Funcion que contiene las imagenes
+function cualImagen( fila, col ){
+	var imagenes = [ 
+		"1.png",
+		"2.png",
+		"3.png",
+		"4.png",
+		"5.png",
+		"6.png",
+		"7.png",
+		"8.png",
+		"9.png",
+		"10.png"
+	];
+	var pos = (fila+1)*5 + col;
+	return "img/" + imagenes[ pos % 10 ];
+}
+//Funcion que ubica las imagenes en el juego
+function imagenes( fila, col ){
+	return '<div><img src="' + cualImagen(fila,col) + '" /></div>';
+}
+//Funcion que genera la reparticion de las cartas del juego
+function repartir(){
+	var cartas="";
+	for( var fila = 0; fila <= 4; fila++){
+		for( col = 0; col <= 5; col++){
+			cartas += htmlCartas( fila, col );
+		}
+	}
+	
+	tab = document.getElementById("tablero");
+	tab.innerHTML = cartas;
+}	
+//Funcion que me permite el giro de las cartas
+function gira(){
+	if(!iguales){
+				imagenes[cartaPrimera].dibuja();
+				imagenes[cartaSegunda].dibuja();
+			}else{
+				ctx.clearRect(	imagenes[cartaPrimera].x,
+								imagenes[cartaPrimera].y,
+								imagenes[cartaPrimera].ancho,
+								imagenes[cartaPrimera].largo);
+				
+				ctx.clearRect(	imagenes[cartaSegunda].x,
+								imagenes[cartaSegunda].y,
+								imagenes[cartaSegunda].ancho,
+								imagenes[cartaSegunda].largo);
+				
+				imagenes[cartaPrimera].x = -1;
+				imagenes[cartaSegunda].x = -1;
+			}
+			if(cartas<6){
+				cart.addEventListener("click",selecciona,false);
+			}else{
+				cartas=0;
+				imagenes=[];
+				cart.addEventListener("click",iniciar,false);
+				ctx.fillStyle="white";
+				ctx.fillText("JUEGO TERMINADO",120,cart.height/2);
+			}
+}
+
+// Funcion que permite conocer la carta seleccionada por el usuario
+function selecciona(e){
+			var pos=ajusta(e.clientX,e.clientY);
+			
+			for(var i=0; i<imagenes.length; i++){
+				var carta = imagenes[i];
+				if(carta.x>0){
+					if( (pos.x>carta.x) && (pos.x<carta.x+carta.ancho) && (pos.y>carta.y) && (pos.y<carta.y+carta.largo)){
+						if((primerCarta) || (i!=cartaPrimera)) {
+							break;
+						}
+					}
+				}
+			}
+			if(i<imagenes.length){
+				if(primerCarta){
+					cartaPrimera=i;
+					primerCarta=false;
+					pinta(carta);
+				}else{
+					cart.removeEventListener("click",selecciona,false);
+					cartaSegunda=i;
+					pinta(carta);
+					primerCarta=true;
+					if(imagenes[cartaPrimera].info==imagenes[cartaSegunda].info){
+						iguales=true;
+						cartas++;
+						aciertos();
+					}else{
+						iguales=false;
+					}
+					setTimeout(volteaCarta,1000);
+				}
+			}
+
+	}
+// Funcion que permite conocer si el usuario ha acertado
+function aciertos(){
+			ctx.save();
+			ctx.clearRect(0,480,cart.width,cart.height);
+			ctx.fillStyle="gray"
+			ctx.fillRect(0,480,cart.width,cart.height);
+			ctx.font = "bold 40px comic";
+			ctx.fillStyle="black";
+			ctx.fillText("Aciertos: "+String(cartas),cart.width-220,510);
+			ctx.restore();
+		}
+	</script>
+	<style>
+
+#tablero img
+{
+	visibility: visible;
+}	
+
+#tablero div
+{
+	background-color: indigo;
+	padding: auto;
+	border-width: 5px;
+	margin: 8px;
+	text-align: center;
+	
+	
+}
+
+ table {border-width:3px;
+   		position: relative;
+    	left: center;
+      }
+
+
+	</style>
+	</head>
+	<body>
+		<div><h1 class="font">BUSCA PAREJAS</h1></div>
+<br/><br/>
+<div class="vDiv">
+<table border="2px">
+
+<tr>
+ <td id="cell1" class="" onClick="tablero('cell1')"></td> 
+ <td id="cell2" class="" onClick="tablero('cell2')"></td> 
+ <td id="cell3" class="" onClick="tablero('cell3')"></td>
+ <td id="cell3" class="" onClick="tablero('cell4')"></td>
+ <td id="cell3" class="" onClick="tablero('cell5')"></td>
+</tr>
+<tr>
+ <td id="cell4" class="" onClick="tablero('cell6')"></td> 
+ <td id="cell5" class="" onClick="tablero('cell7')"></td> 
+ <td id="cell6" class="" onClick="tablero('cell8')"></td>
+ <td id="cell3" class="" onClick="tablero('cell9')"></td>
+ <td id="cell3" class="" onClick="tablero('cell10')"></td>
+</tr>
+<tr>
+ <td id="cell7" class="" onClick="tablero('cell11')"></td> 
+ <td id="cell8" class="" onClick="tablero('cell12')"></td> 
+ <td id="cell9" class="" onClick="tablero('cell13')"></td>
+ <td id="cell3" class="" onClick="tablero('cell14')"></td>
+ <td id="cell3" class="" onClick="tablero('cell15')"></td>
+</tr>
+<tr>
+ <td id="cell7" class="" onClick="tablero('cell16')"></td> 
+ <td id="cell8" class="" onClick="tablero('cell17')"></td> 
+ <td id="cell9" class="" onClick="tablero('cell18')"></td>
+ <td id="cell3" class="" onClick="tablero('cell19')"></td>
+ <td id="cell3" class="" onClick="tablero('cell20')"></td>
+</tr>
+</table>
+</div>
+	<button onclick="repartir()">Repartir</button>
+	<div id="tablero"></div>
+	<div id="puntaje"></div>
+	</body>
+</html>
